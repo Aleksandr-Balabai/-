@@ -18,18 +18,24 @@ sudo firewall-cmd --reload
 sudo systemctl restart docker
 SCRIPT
 
+$ssh_access_script = <<SCRIPT
+cat /home/vagrant/.ssh/ansible.pub >> /home/vagrant/.ssh/authorized_keys
+SCRIPT
+
 #Common variables
 BOX_NAME = "centos/7"
 MEMORY = "1024"
 CPUS = 1
-MANAGERS = 2
+MANAGERS = 1
 MANAGER_IP = "172.20.20.1"
-WORKERS = 4
+WORKERS = 1
 WORKER_IP = "172.20.20.10"
 
 Vagrant.configure("2") do |config|
   config.vm.box = BOX_NAME
+  config.vm.provision "file", source: ".ssh/ansible.pub", destination: "~/.ssh/ansible.pub"
   config.vm.provision "shell",inline: $install_docker_script, privileged: true
+  config.vm.provision "shell",inline: $ssh_access_script, privileged: true
   config.vm.provider "virtualbox" do |vb|
       vb.memory = MEMORY
       vb.cpus = CPUS
