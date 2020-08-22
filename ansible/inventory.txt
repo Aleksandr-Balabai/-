@@ -1,0 +1,9 @@
+[managers]
+Manager01	ansible_host=172.20.20.11
+#Manager02	ansible_host=172.20.20.12
+
+[workers]
+Worker01	ansible_host=172.20.20.101
+#Worker02	ansible_host=172.20.20.102
+#Worker03	ansible_host=172.20.20.103
+#Worker04	ansible_host=172.20.20.104
