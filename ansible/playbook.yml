@@ -1,0 +1,45 @@
+---
+
+- name: Init Docker-Swarm and activate manages
+  hosts: all
+  become: yes
+
+  tasks:
+  # - name:  Docker Swarm Leave
+  #   shell: docker swarm leave --force
+
+  - name:  Docker Swarm Init
+    shell:  docker swarm init --listen-addr 172.20.20.11:2377 --advertise-addr 172.20.20.11:2377 | awk 'BEGIN{FS="\n"; RS=" "} {print $1}' | awk 'BEGIN{FS="\n"; RS=" "} {print $27}' > worker_token.txt
+    when: ansible_hostname == "Manager01"
+
+  - name: Docker Swarm Join-Token
+    shell: docker swarm join-token manager | awk 'BEGIN{FS="\n"; RS=" "} {print $1}' | awk 'BEGIN{FS="\n"; RS=" "} {print $19}' > manager_token.txt
+    when: ansible_hostname == "Manager01"
+
+  - name: Copy file-WT from remoute host
+    fetch:
+     src: worker_token.txt
+     dest: /home/aleks/БАРС/vagrant/ansible/
+    when: ansible_hostname == "Manager01"
+
+  - name: Copy file-MT from remoute host
+    fetch:
+     src: manager_token.txt
+     dest: /home/aleks/БАРС/vagrant/ansible/
+    when: ansible_hostname == "Manager01"
+
+  - name: Copy file from local host
+    copy:
+     src: /home/aleks/БАРС/vagrant/ansible/Manager01/worker_token.txt
+     dest: ~/worker_token.txt
+    when: ansible_hostname == "Worker01"
+
+  - name: Copy file from local host
+    copy:
+     src: Manager01/manager_token.txt
+     dest: ~/manager_token.txt
+    when: ansible_hostname == "Manager02"
+
+  - name: Join Worker to Cluster
+    shell: "docker swarm join --token $(cat ~/worker_token.txt) 172.20.20.11:2377"
+    when: ansible_hostname == "Worker01"
