@@ -1,13 +1,4 @@
 ---
-- name: Docker Leave
-  hosts: all
-  become: yes
-
-  tasks:
-  - name: Docker Swarm Leave
-    shell: docker swarm leave --force
-
-
 - name: Init Docker-Swarm and Activate Managers
   hosts: managers
   become: yes
@@ -24,18 +15,18 @@
   - name: Copy File-Worker-Token from remoute host
     fetch:
      src: worker_token.txt
-     dest: /home/aleks/БАРС/vagrant/ansible/
+     dest: ~/BARS/
     when: ansible_hostname == "Manager01"
 
   - name: Copy File-Manager-Token from remoute host
     fetch:
      src: manager_token.txt
-     dest: ~/БАРС/vagrant/ansible/
+     dest: ~/BARS/
     when: ansible_hostname == "Manager01"
 
   - name: Copy file from local host
     copy:
-     src: Manager01/manager_token.txt
+     src: ~/BARS/test-project/ansible/Manager01/manager_token.txt
      dest: ~/manager_token.txt
     when: ansible_hostname != "Manager01"
 
@@ -50,7 +41,43 @@
   tasks:
   - name: Copy file from local host
     copy:
-     src: ~/БАРС/vagrant/ansible/Manager01/worker_token.txt
+     src: ~/BARS/test-project/ansible/Manager01/worker_token.txt
+     dest: ~/worker_token.txt
+
+  - name: Join Worker to Cluster
+    shell: "docker swarm join --token $(cat ~/worker_token.txt) 172.20.20.11:2377"
+
+- name: Run Nginx Service
+  hosts: Manager01
+  become: yes
+
+  tasks:
+  - name: Change mode of Leader
+    shell: docker node update --availability drain Manager01
+
+  - name: Deploy Nginx
+    shell: docker service create --replicas 3 --publish 8080:80 --name my-nginx nginx
+
+  - name: Smoke Test
+    shell: curl -I 127.0.0.1:8080
+    register: result
+
+  - debug:
+      var: result.stdout
+    when: ansible_hostname != "Manager01"
+
+  - name: Join Manager to Cluster
+    shell: "docker swarm join --token $(cat ~/manager_token.txt) 172.20.20.11:2377"
+    when: ansible_hostname != "Manager01"
+
+- name: Init Docker-Swarm and Activate Workers
+  hosts: workers
+  become: yes
+
+  tasks:
+  - name: Copy file from local host
+    copy:
+     src: ~/BARS/vagrant/ansible/Manager01/worker_token.txt
      dest: ~/worker_token.txt
 
   - name: Join Worker to Cluster
