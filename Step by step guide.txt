@@ -1,0 +1,18 @@
+Requarements:
+	ansible v2.9.6
+	vagrant v2.2.6
+	Oracle VM VirtualBox VM Selector v6.1.10_Ubuntu
+
+
+For to deploy this project, In console from the current directory execute following commands:
+	1 ssh-keygen -f ./.ssh/ansible
+	2 vagrunt up
+	3 cd ansible/
+	4 ansible-playbook main.yml
+
+For to destroy this project execute the next command:
+	1 vagrant destroy -f
+
+If you want to create a new Docker Swarm Cluster over is already existing cluster,  first of all, you need to run ansible playbook "get_out_of_cluster.yml":
+	1 ansible-playbook get_out_of-cluster.yml
+	2 ansible-playbook main.yml
