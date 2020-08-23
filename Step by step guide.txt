@@ -15,5 +15,5 @@ For to destroy this project execute the next command:
 	1 vagrant destroy -f
 
 If you want to create a new Docker Swarm Cluster over is already existing cluster,  first of all, you need to run ansible playbook "get_out_of_cluster.yml":
-	1 ansible-playbook get_out_of-cluster.yml
+	1 ansible-playbook get_out_of_cluster.yml
 	2 ansible-playbook main.yml
