@@ -61,8 +61,9 @@
   - name: Smoke Test
     shell: curl -I 127.0.0.1:8080
     register: result
-
+    when: ansible_hostname == "Manager01"
+    
   - debug:
       var: result.stdout
-    when: ansible_hostname != "Manager01"
-    
+    when: ansible_hostname == "Manager01"
+
