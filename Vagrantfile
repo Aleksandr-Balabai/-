@@ -28,7 +28,7 @@ MEMORY = "1024"
 CPUS = 1
 MANAGERS = 2
 MANAGER_IP = "172.20.20.1"
-WORKERS = 2
+WORKERS = 4
 WORKER_IP = "172.20.20.10"
 
 Vagrant.configure("2") do |config|
